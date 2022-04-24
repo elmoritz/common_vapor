@@ -5,6 +5,7 @@ import PackageDescription
 
 fileprivate extension String {
     static let Vapor = "Vapor"
+    static let Fluent = "Fluent"
     static let CommonVapor = "CommonVapor"
 }
 
@@ -23,6 +24,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/vapor/vapor.git", from: "4.54.1"),
+        .package(url: "https://github.com/vapor/fluent.git", from: "4.0.0"),
         // Dependencies declare other packages that this package depends on.
         // .package(url: /* package url */, from: "1.0.0"),
     ],
@@ -33,6 +35,7 @@ let package = Package(
             name: .CommonVapor,
             dependencies: [
                 .product(name: .Vapor, package: "vapor"),
+                .product(name: .Fluent, package: "fluent"),
             ]),
         .testTarget(
             name: "CommonVaporTests",

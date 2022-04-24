@@ -9,3 +9,6 @@ currently contains:
 
 - Request-extension:
     - adds the convenient functions to call request.client.get directly on the request
+    
+- ModuleInterface
+    - ease of use to create a Module
