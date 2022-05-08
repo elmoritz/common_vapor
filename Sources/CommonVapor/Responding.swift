@@ -4,7 +4,7 @@ public protocol Responding {
     func wrap<C: Content>(_ object: C) -> Response
     func wrapErrorReport<R: ErrorReportContentful>(_ errorReport: R) -> Response
     func wrapError<E: Error>(_ error: E) -> Response
-    func wrapExtendedError<E: ExtendedError>(_ error: E) -> Response
+    func wrapExtendedError<E: ExtendedError>(_ extendedError: E) -> Response
     
 }
 
@@ -26,6 +26,14 @@ public extension Responding {
     }
     
     func wrapError<E: Error>(_ error: E) -> Response {
+        if let extendedError = error as? ExtendedError {
+            return unwrapExtendedError(extendedError)
+        }
+        
+        return wrapSimpleError(error)
+    }
+    
+    private func wrapSimpleError(_ error: Error) -> Response {
         let response = Response(status: .internalServerError,
                                 version: .http2)
         let content = ["error":"\(error)"]
@@ -33,20 +41,24 @@ public extension Responding {
         return response
     }
     
-    func wrapExtendedError<E: ExtendedError>(_ error: E) -> Response {
-        let response = Response(status: error.statusCode,
+    func wrapExtendedError<E: ExtendedError>(_ extendedError: E) -> Response {
+        return unwrapExtendedError(extendedError)
+    }
+    
+    private func unwrapExtendedError(_ extendedError: ExtendedError) -> Response {
+        let response = Response(status: extendedError.statusCode,
                                 version: .http2)
-        var content = ["error":"\(error)"]
+        var content = ["error":"\(extendedError)"]
        
-        if let source = error.source {
+        if let source = extendedError.source {
             content["source"] = source
         }
         
-        if let reason = error.reason {
+        if let reason = extendedError.reason {
             content["reason"] = reason
         }
         
-        if let additionalInfo = error.additionalInfo {
+        if let additionalInfo = extendedError.additionalInfo {
             content["additionalInfo"] = additionalInfo
         }
         

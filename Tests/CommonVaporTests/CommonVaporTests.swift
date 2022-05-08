@@ -74,6 +74,23 @@ final class CommonVaporTests: XCTestCase {
         }
     }
     
+    func testRespondingProtocolWrapErrorWithSource() throws {
+        let models: [TestExtendedError] = [.testOnlySource, .testSourceAndInfo, .testSourceAndReason, .testAll]
+        
+        let sut = RespondigShell()
+        for model in models {
+            let response = sut.wrapError(model)
+            XCTAssertEqual(response.status, .internalServerError)
+            XCTAssertEqual(response.version, .http2)
+            
+            guard let content = try? response.content.decode([String:String].self) else {
+                XCTFail()
+                return
+            }
+            XCTAssertNotNil(content["source"])
+        }
+    }
+    
     func testRespondingProtocolWrapExtendedErrorWithReason() throws {
         let models: [TestExtendedError] = [.testOnlyReason, .testSourceAndReason, .testReasonAndInfo, .testAll]
         
@@ -91,12 +108,46 @@ final class CommonVaporTests: XCTestCase {
         }
     }
     
+    func testRespondingProtocolWrapErrorWithReason() throws {
+        let models: [TestExtendedError] = [.testOnlyReason, .testSourceAndReason, .testReasonAndInfo, .testAll]
+        
+        let sut = RespondigShell()
+        for model in models {
+            let response = sut.wrapError(model)
+            XCTAssertEqual(response.status, .internalServerError)
+            XCTAssertEqual(response.version, .http2)
+            
+            guard let content = try? response.content.decode([String:String].self) else {
+                XCTFail()
+                return
+            }
+            XCTAssertNotNil(content["reason"])
+        }
+    }
+    
     func testRespondingProtocolWrapExtendedErrorWithAdditionalInfo() throws {
         let models: [TestExtendedError] = [.testOnlyAdditionalInfo, .testReasonAndInfo, .testSourceAndInfo, .testAll]
         
         let sut = RespondigShell()
         for model in models {
             let response = sut.wrapExtendedError(model)
+            XCTAssertEqual(response.status, .internalServerError)
+            XCTAssertEqual(response.version, .http2)
+            
+            guard let content = try? response.content.decode([String:String].self) else {
+                XCTFail()
+                return
+            }
+            XCTAssertNotNil(content["additionalInfo"])
+        }
+    }
+    
+    func testRespondingProtocolWrapErrorWithAdditionalInfo() throws {
+        let models: [TestExtendedError] = [.testOnlyAdditionalInfo, .testReasonAndInfo, .testSourceAndInfo, .testAll]
+        
+        let sut = RespondigShell()
+        for model in models {
+            let response = sut.wrapError(model)
             XCTAssertEqual(response.status, .internalServerError)
             XCTAssertEqual(response.version, .http2)
             
